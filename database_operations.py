@@ -20,3 +20,16 @@ def search_person(tx, search_param):
     result = tx.run(search_person_query, name=name, surname=surname)
     # Returning a list of dictionaries containing the search results
     return [{"name": record['name'], "surname": record['surname'], "birthdate": record['birthdate']} for record in result]
+
+# Method to view details of the selected person
+def view_person(self):
+    # Cypher query to search for persons by name or surname
+    search_person_query = (
+        "MATCH (p:Person) "
+        "WHERE p.name = $name OR p.surname = $surname "
+        "RETURN p.name AS name, p.surname AS surname, p.birthdate AS birthdate"
+    )
+    # BLAAAH
+
+
+
