@@ -1,0 +1,213 @@
+Main.py
+import os
+from dotenv import load_dotenv
+from neo4j import GraphDatabase
+import tkinter as tk
+from tkinter import messagebox
+
+from PersonForm import PersonForm
+from PersonSearchForm import PersonSearchForm
+
+load_dotenv('.env')
+
+uri = os.getenv('NEO4J_URI')
+username = os.getenv('NEO4J_USERNAME')
+password = os.getenv('NEO4J_PASSWORD')
+
+driver = GraphDatabase.driver(uri, auth=(username, password))
+
+class MainForm:
+    def __init__(self, master):
+        self.master = master
+        master.title("Person Management System")
+
+        self.create_button = tk.Button(master, text="Create Person", command=self.open_create_person)
+        self.create_button.pack(pady=10)
+
+        self.search_button = tk.Button(master, text="Search Person", command=self.open_search_person)
+        self.search_button.pack(pady=10)
+
+    def open_create_person(self):
+        # Open the Create Person form
+        root = tk.Tk()
+        app = PersonForm(root, driver)
+        # Assign the create_person method to the submit button command
+        app.submit_button.config(command=app.create_person)
+        root.mainloop()
+
+    def open_search_person(self):
+        root = tk.Tk()
+        app = PersonSearchForm(root, driver)
+        root.mainloop()
+        
+def main():
+    root = tk.Tk()
+    app = MainForm(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
+
+-------------
+import tkinter as tk
+from tkinter import messagebox
+from database_operations import create_person
+
+# Class representing the form for creating a new person
+class PersonForm:
+    # Constructor method to initialize the form
+    def __init__(self, master, driver):
+        # Initializing the master (root) window and the Neo4j driver
+        self.master = master
+        self.driver = driver
+        # Setting the title of the form
+        master.title("Create Person")
+
+        # Creating labels and entry fields for name, surname, and birthdate
+        self.label_name = tk.Label(master, text="Name:")
+        self.label_name.grid(row=0, column=0, sticky="w")
+        self.entry_name = tk.Entry(master)
+        self.entry_name.grid(row=0, column=1)
+
+        self.label_surname = tk.Label(master, text="Surname:")
+        self.label_surname.grid(row=1, column=0, sticky="w")
+        self.entry_surname = tk.Entry(master)
+        self.entry_surname.grid(row=1, column=1)
+
+        self.label_birthdate = tk.Label(master, text="Birthdate:")
+        self.label_birthdate.grid(row=2, column=0, sticky="w")
+        self.entry_birthdate = tk.Entry(master)
+        self.entry_birthdate.grid(row=2, column=1)
+
+        # Creating the 'Create Person' button
+        self.submit_button = tk.Button(master, text="Create Person", command=self.create_person)
+        self.submit_button.grid(row=3, columnspan=2)
+
+    # Method to create a new person
+    def create_person(self):
+        # Retrieving user input from the entry fields
+        name = self.entry_name.get()
+        surname = self.entry_surname.get()
+        birthdate = self.entry_birthdate.get()
+
+        # Checking if all fields are filled
+        if name and surname and birthdate:
+            # Creating a dictionary with person details
+            person_details = {"name": name, "surname": surname, "birthdate": birthdate}
+            # Calling the add_person method to add the person to the database
+            self.add_person(person_details)
+            # Displaying a success message
+            messagebox.showinfo("Success", "Person created successfully!")
+            # Clearing the form fields
+            self.clear_form()
+        else:
+            # Displaying an error message if any field is empty
+            messagebox.showerror("Error", "Please fill in all fields.")
+
+    # Method to add a person to the database
+    def add_person(self, person_details):
+        # Using the provided Neo4j driver to interact with the database
+        with self.driver.session() as session:
+            # Calling the create_person function from database_operations module
+            create_person(session, person_details)
+
+    # Method to clear the form fields
+    def clear_form(self):
+        self.entry_name.delete(0, tk.END)
+        self.entry_surname.delete(0, tk.END)
+        self.entry_birthdate.delete(0, tk.END)
+               
+--------------
+import tkinter as tk
+from tkinter import messagebox
+from database_operations import search_person
+
+# Class representing the form for searching existing persons
+class PersonSearchForm:
+    # Constructor method to initialize the form
+    def __init__(self, master, driver):
+        # Initializing the master (root) window and the Neo4j driver
+        self.master = master
+        self.driver = driver
+        # Setting the title of the form
+        master.title("Search Person")
+
+        # Creating a label and an entry field for the search parameter
+        self.label_search = tk.Label(master, text="Search:")
+        self.label_search.grid(row=0, column=0, sticky="w")
+        self.entry_search = tk.Entry(master)
+        self.entry_search.grid(row=0, column=1)
+
+        # Creating a listbox to display search results
+        self.listbox = tk.Listbox(master)
+        self.listbox.grid(row=1, columnspan=2)
+
+        # Creating the 'Search' button
+        self.search_button = tk.Button(master, text="Search", command=self.person_search)
+        self.search_button.grid(row=2, columnspan=2)
+
+    # Method to perform the search operation
+    def person_search(self):
+        # Retrieving the search parameter from the entry field
+        search_param = self.entry_search.get()
+
+        # Performing the search operation if the search parameter is provided
+        if search_param:
+            # Using the provided Neo4j driver to interact with the database
+            with self.driver.session() as session:
+                # Calling the search_person function from database_operations module
+                results = session.write_transaction(search_person, search_param)
+                # Displaying the search results
+                self.display_search_results(results)
+        else:
+            # Displaying a warning message if no search parameter is provided
+            messagebox.showwarning("Search Criteria", "Please enter a search parameter.")
+
+    # Method to display the search results in the listbox
+    def display_search_results(self, results):
+        # Clearing the previous search results from the listbox
+        self.listbox.delete(0, tk.END)
+
+        # Displaying new search results if any
+        if results:
+            # Iterating through the search results and adding them to the listbox
+            for person in results:
+                name = person.get('name', '')
+                surname = person.get('surname', '')
+                birthdate = person.get('birthdate', '')
+                display_text = f"{name} {surname} {birthdate}"
+                self.listbox.insert(tk.END, display_text)
+        else:
+            # Displaying an informational message if no matching persons are found
+            messagebox.showinfo("No Results", "No matching persons found.")
+
+--------------------------------
+# Function to create a new person in the database
+def create_person(tx, person_details):
+    # Cypher query to create a new person node with provided details
+    create_person_query = "CREATE (p:Person {name: $name, surname: $surname, birthdate: $birthdate})"
+    # Running the query using the transaction passed as an argument, and passing person_details as parameters
+    tx.run(create_person_query, **person_details)
+
+# Function to search for persons in the database based on provided parameters
+def search_person(tx, search_param):
+    # Cypher query to search for persons by name or surname
+    search_person_query = (
+        "MATCH (p:Person) "
+        "WHERE p.name = $name OR p.surname = $surname "
+        "RETURN p.name AS name, p.surname AS surname, p.birthdate AS birthdate"
+    )
+    # Splitting the search parameter into name and surname (if applicable)
+    name, *surname = search_param.split(" ", 1)
+    surname = " ".join(surname) if surname else None
+    # Running the query using the transaction passed as an argument, and passing name and surname as parameters
+    result = tx.run(search_person_query, name=name, surname=surname)
+    # Returning a list of dictionaries containing the search results
+    return [{"name": record['name'], "surname": record['surname'], "birthdate": record['birthdate']} for record in result]
+
+
+------------------------------
+AddRelationshipForm.py - not done yet
+-----------
+requirements.txt
+not done yet

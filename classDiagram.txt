@@ -1,0 +1,28 @@
+classDiagram
+    class MainForm {
+        + open_create_person() 
+        + open_search_person() 
+    }
+
+    class PersonForm {
+        + create_person()
+        + add_person(person_details)
+        + clear_form()
+    }
+
+    class PersonSearchForm {
+        + person_search()
+        + display_search_results(results)
+        + view_person()
+        + add_relationship()
+    }
+
+    class database_operations {
+        + create_person(tx: GraphDatabase, person_details: dict)
+        + search_person(tx: GraphDatabase, search_param: str)
+    }
+
+    MainForm -- PersonForm : uses
+    MainForm -- PersonSearchForm : uses
+    PersonForm -- database_operations : uses
+    PersonSearchForm -- database_operations : uses
