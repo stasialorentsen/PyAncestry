@@ -1,5 +1,5 @@
-# Install dependencies from requirements.txt
-pip install -r requirements.txt
+# Install dependencies from requirements.txt from terminal
+# pip install -r requirements.txt
 
 import os
 from dotenv import load_dotenv
