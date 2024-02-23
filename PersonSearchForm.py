@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
-from database_operations import search_person, view_person
+from database_operations import search_person_by_name_or_surname, view_person_details
 from ViewDetailsForm import ViewDetailsForm
-
 
 class PersonSearchForm:
     # Constructor method to initialize the form
@@ -10,78 +9,82 @@ class PersonSearchForm:
         # Initializing the master (root) window and the Neo4j driver
         self.master = master
         self.driver = driver
+        self.results = [] # Initialize results attribute
         # Setting the title of the form
         master.title("Search Person")
 
-        # Creating a label and an entry field for the search parameter
-        self.label_search = tk.Label(master, text="Search:")
-        self.label_search.grid(row=0, column=0, sticky="w")
-        self.entry_search = tk.Entry(master)
-        self.entry_search.grid(row=0, column=1)
+        # Creating labels and entry fields for name and surname
+        self.label_name = tk.Label(master, text="Name:")
+        self.label_name.grid(row=0, column=0, sticky="w")
+        self.entry_name = tk.Entry(master)
+        self.entry_name.grid(row=0, column=1)
+
+        self.label_surname = tk.Label(master, text="Surname:")
+        self.label_surname.grid(row=1, column=0, sticky="w")
+        self.entry_surname = tk.Entry(master)
+        self.entry_surname.grid(row=1, column=1)
 
         # Creating a listbox to display search results
         self.listbox = tk.Listbox(master)
-        self.listbox.grid(row=1, columnspan=2)
+        self.listbox.grid(row=2, columnspan=2)
 
         # Creating the 'Search' button
         self.search_button = tk.Button(master, text="Search", command=self.person_search)
-        self.search_button.grid(row=2, columnspan=2)
-            
+        self.search_button.grid(row=3, columnspan=2)
+        
+        # Create the View Details button
+        self.view_details_button = tk.Button(master, text="View Details", command=self.view_details)
+        self.view_details_button.grid(row=3, column=2)  # Placing on the next column
+
+
     # Method to perform the search operation
     def person_search(self):
-        # Retrieving the search parameter from the entry field
-        search_param = self.entry_search.get()
+        # Retrieving the search parameters from the entry fields
+        name = self.entry_name.get()
+        surname = self.entry_surname.get()
     
-        # Performing the search operation if the search parameter is provided
-        if search_param:
-            # Using the provided Neo4j driver to interact with the database
-            with self.driver.session() as session:
-                # Calling the search_person function from database_operations module
-                self.results = session.write_transaction(search_person, search_param)
-                # Displaying the search results
-                self.display_search_results(self.results)
-        else:
-            # Displaying a warning message if no search parameter is provided
-            messagebox.showwarning("Search Criteria", "Please enter a search parameter.")
-
+        # Performing the search operation using the provided parameters
+        with self.driver.session() as session:
+            # Calling the search_person_by_name_and_surname function from database_operations module
+            results = session.write_transaction(search_person_by_name_or_surname, name, surname)
+            self.results = results  # Update results attribute
+    
+            # Displaying the search results
+            self.display_search_results(results)
+    
 
     # Method to display the search results in the listbox
-    def display_search_results(self, results):
+    def display_search_results(self, result):
         # Clearing the previous search results from the listbox
         self.listbox.delete(0, tk.END)
 
         # Displaying new search results if any
-        if results:
-            # Iterating through the search results and adding them to the listbox
-            for person in results:
-                name = person.get('name', '')
-                surname = person.get('surname', '')
-                birthdate = person.get('birthdate', '')
-                display_text = f"{name} {surname} {birthdate}"
-                self.listbox.insert(tk.END, display_text)
-                
-            # Create the buttons for add relationship, view person, and view details
-            self.view_details_button = tk.Button(self.master, text="View Person", command=self.view_details)
-            self.view_details_button.grid(row=3, column=0, pady=10)
-            #self.view_details_button = tk.Button(self.master, text="Add Relationship", command=self.view_details)
-            self.view_details_button.grid(row=3, column=1, pady=10)
-        else:
-            # Displaying an informational message if no matching persons are found
-            messagebox.showinfo("No Results", "No matching persons found.")
-    
-    # Method to view details of the selected person
-    def view_details(self):
-        # Retrieve the selected person from the listbox
-        selected_index = self.listbox.curselection()
-        if selected_index:
-            selected_person = self.results[selected_index[0]]  # Retrieve the selected person's details from the results list
-            root = tk.Tk()
-            app = ViewDetailsForm(root, self.driver, selected_person['name'], selected_person['surname'], selected_person['birthdate'])
-            app.fetch_details()
-            root.mainloop()
-        else:
-            messagebox.showwarning("No Selection", "Please select a person.")
+        for record in result:
+            name = record['name']
+            surname = record['surname']
+            birthdate = record['birthdate']
+            display_text = f"{name} {surname} {birthdate}"
+            self.listbox.insert(tk.END, display_text)
 
-            
+    
+    # Method to display selected person's details
+    def view_details(self):
+       selected_index = self.listbox.curselection()
+       if selected_index:
+           selected_person = self.results[selected_index[0]]
+           name = selected_person.get('name')
+           surname = selected_person.get('surname')
+           birthdate = selected_person.get('birthdate')
+           
+           with self.driver.session() as session:
+               person_details = session.read_transaction(view_person_details, name, surname, birthdate)
+           
+           if person_details:
+               messagebox.showinfo("Person Details", f"Name: {person_details['name']}\nSurname: {person_details['surname']}\nBirthdate: {person_details['birthdate']}")
+           else:
+               messagebox.showinfo("No Details", "No details found for the selected person.")
+       else:
+           messagebox.showwarning("No Selection", "Please select a person.")
+                 
     # Method to add relationship to the selected person
     # def add_relationship(self):

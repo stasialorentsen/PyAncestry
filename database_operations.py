@@ -2,30 +2,50 @@
 def create_person(tx, person_details):
     # Cypher query to create a new person node with provided details
     create_person_query = "CREATE (p:Person {name: $name, surname: $surname, birthdate: $birthdate})"
+    print("Create Person Cypher Query:", create_person_query)
+    print("Person Details:", person_details)
     # Running the query using the transaction passed as an argument, and passing person_details as parameters
     tx.run(create_person_query, **person_details)
 
-# Function to search for persons in the database based on provided parameters
-def search_person(tx, search_param):
-    # Cypher query to search for persons by name or surname
-    search_person_query = (
+# Function to search for persons in the database based on name and surname
+def search_person_by_name_or_surname(tx, name, surname):
+    # Constructing the search query based on the provided parameters
+    search_query = ""
+    parameters = {}
+    if name:
+        search_query += "toLower(p.name) CONTAINS toLower($name) AND "
+        parameters["name"] = name
+    if surname:
+        search_query += "toLower(p.surname) CONTAINS toLower($surname) AND "
+        parameters["surname"] = surname
+
+    # Removing the trailing "AND" if it exists
+    if search_query.endswith(" AND "):
+        search_query = search_query[:-5]
+
+    # Constructing the full Cypher query
+    search_query = (
         "MATCH (p:Person) "
-        "WHERE p.name = $name OR p.surname = $surname "
+        f"WHERE {search_query} "
         "RETURN p.name AS name, p.surname AS surname, p.birthdate AS birthdate"
     )
-    # Splitting the search parameter into name and surname (if applicable)
-    name, *surname = search_param.split(" ", 1)
-    surname = " ".join(surname) if surname else None
-    # Running the query using the transaction passed as an argument, and passing name and surname as parameters
-    result = tx.run(search_person_query, name=name, surname=surname)
+    print("Search Person Query:", search_query)
+    print("Search Person Parameters:", parameters)
+    # Running the query using the transaction passed as an argument, and passing parameters
+    result = tx.run(search_query, **parameters)
+
     # Returning a list of dictionaries containing the search results
     return [{"name": record['name'], "surname": record['surname'], "birthdate": record['birthdate']} for record in result]
 
-# Method to view details of the selected person
-def view_person(self):
-    # Cypher query to search for persons by name or surname
-    search_person_query = (
+
+def view_person_details(tx, name, surname, birthdate):
+    # Cypher query to retrieve details of a person with exact match on name, surname, and birthdate
+    view_person_query = (
         "MATCH (p:Person) "
-        "WHERE p.name = $name OR p.surname = $surname "
+        "WHERE p.name = $name AND p.surname = $surname AND p.birthdate = $birthdate "
         "RETURN p.name AS name, p.surname AS surname, p.birthdate AS birthdate"
     )
+
+    # Run the query and return the result
+    result = tx.run(view_person_query, name=name, surname=surname, birthdate=birthdate)
+    return result.single()

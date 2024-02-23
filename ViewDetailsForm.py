@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from database_operations import view_person
+from database_operations import search_person_by_name_or_surname
 
 class ViewDetailsForm:
     # Constructor method to initialize the form
@@ -31,6 +31,6 @@ class ViewDetailsForm:
         self.entry_birthdate.grid(row=2, column=1)
 
         # Setting the initial values of the entry fields
-        self.entry_name.insert(tk.END, name)
-        self.entry_surname.insert(tk.END, surname)
-        self.entry_birthdate.insert(tk.END, birthdate)
+        self.entry_name.insert(tk.END, self.name)
+        self.entry_surname.insert(tk.END, self.surname)
+        self.entry_birthdate.insert(tk.END, str(self.birthdate))  # Convert to string if not already
