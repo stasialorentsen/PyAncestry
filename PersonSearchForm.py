@@ -35,6 +35,10 @@ class PersonSearchForm:
         # Create the View Details button
         self.view_details_button = tk.Button(master, text="View Details", command=self.view_details)
         self.view_details_button.grid(row=3, column=2)  # Placing on the next column
+        
+        # Create the Add Relationship button
+        self.view_details_button = tk.Button(master, text="Add Relationship", command=self.add_relationship)
+        self.view_details_button.grid(row=3, column=3)  # Placing on the next column
 
 
     # Method to perform the search operation
@@ -87,4 +91,13 @@ class PersonSearchForm:
            messagebox.showwarning("No Selection", "Please select a person.")
                  
     # Method to add relationship to the selected person
-    # def add_relationship(self):
+    def add_relationship(self):
+        selected_index = self.listbox.curselection()
+        if selected_index:
+            selected_person = self.results[selected_index[0]]
+            name = selected_person.get('name')
+            surname = selected_person.get('surname')
+            birthdate = selected_person.get('birthdate')
+            
+            with self.driver.session() as session:
+                relationship_details = session.read_transaction(add_relationship, name, surname, birthdate)
