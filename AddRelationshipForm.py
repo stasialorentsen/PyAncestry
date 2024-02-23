@@ -2,10 +2,12 @@ import tkinter as tk
 
 class AddRelationshipForm:
     # Constructor method to initialize the form
-    def __init__(self, master, driver, selected_person_info):
+    def __init__(self, master, driver, name, surname, birthdate):
         self.master = master
         self.driver = driver
-        self.selected_person_info = selected_person_info
+        self.name = name
+        self.surname = surname
+        self.birthdate = birthdate
         
         # Create frames for organizing widgets
         self.frame_selected_person = tk.Frame(master)
@@ -30,10 +32,22 @@ class AddRelationshipForm:
         self.entry_selected_birthdate = tk.Entry(self.frame_selected_person, state='readonly')
         self.entry_selected_birthdate.grid(row=2, column=1)
         
-        # Populate selected person's information
-        self.entry_selected_name.insert(tk.END, self.selected_person_info['name'])
-        self.entry_selected_surname.insert(tk.END, self.selected_person_info['surname'])
-        self.entry_selected_birthdate.insert(tk.END, self.selected_person_info['birthdate'])
+        # # Populate selected person's information - TO-DO better
+        self.entry_selected_name.configure(state='normal')  # Change state to normal temporarily
+        self.entry_selected_name.delete(0, tk.END)  # Clear any existing text
+        self.entry_selected_name.insert(tk.END, self.name)  # Insert the new value
+        self.entry_selected_name.configure(state='readonly')  # Change state back to readonly
+        
+        self.entry_selected_surname.configure(state='normal')
+        self.entry_selected_surname.delete(0, tk.END)
+        self.entry_selected_surname.insert(tk.END, self.surname)
+        self.entry_selected_surname.configure(state='readonly')
+        
+        self.entry_selected_birthdate.configure(state='normal')
+        self.entry_selected_birthdate.delete(0, tk.END)
+        self.entry_selected_birthdate.insert(tk.END, self.birthdate)
+        self.entry_selected_birthdate.configure(state='readonly')
+
         
         # Create labels and entry fields for new person's information
         self.label_new_name = tk.Label(self.frame_new_person, text="Name 2:")

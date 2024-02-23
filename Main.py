@@ -5,7 +5,6 @@ import os
 from dotenv import load_dotenv
 from neo4j import GraphDatabase
 import tkinter as tk
-from tkinter import messagebox
 
 from PersonForm import PersonForm
 from PersonSearchForm import PersonSearchForm
@@ -39,12 +38,12 @@ class MainForm:
 
     def open_search_person(self):
         root = tk.Tk()
-        app = PersonSearchForm(root, driver)
+        app = PersonSearchForm(root, driver) 
         root.mainloop()
         
 def main():
     root = tk.Tk()
-    app = MainForm(root)
+    app = MainForm(root) 
     root.mainloop()
 
 if __name__ == "__main__":

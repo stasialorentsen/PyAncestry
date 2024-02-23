@@ -95,6 +95,7 @@ class PersonSearchForm:
         selected_index = self.listbox.curselection()
         if selected_index:
             selected_person = self.results[selected_index[0]]
+            print(selected_person)  # check the selected person's details
             name = selected_person.get('name')
             surname = selected_person.get('surname')
             birthdate = selected_person.get('birthdate')
@@ -104,6 +105,7 @@ class PersonSearchForm:
             add_relationship_window.title("Add Relationship Form")
             
             # Pass the selected person's information to the Add Relationship form
-            add_relationship_form = AddRelationshipForm(add_relationship_window, self.driver, selected_person_info=selected_person)
+            add_relationship_form = AddRelationshipForm(add_relationship_window, self.driver, name, surname, birthdate)
         else:
             messagebox.showwarning("No Selection", "Please select a person.")
+
