@@ -1,3 +1,6 @@
+# Install dependencies from requirements.txt
+pip install -r requirements.txt
+
 import os
 from dotenv import load_dotenv
 from neo4j import GraphDatabase
