@@ -32,7 +32,7 @@ class PersonForm:
         self.submit_button = tk.Button(master, text="Create Person", command=self.create_person)
         self.submit_button.grid(row=3, columnspan=2)
 
-    # Method to create a new person
+    # Method to create/submit a new person
     def create_person(self):
         # Retrieving user input from the entry fields
         name = self.entry_name.get()
