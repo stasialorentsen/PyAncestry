@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from database_operations import search_person_by_name_or_surname, view_person_details
-from ViewDetailsForm import ViewDetailsForm
+from AddRelationshipForm import AddRelationshipForm
 
 class PersonSearchForm:
     # Constructor method to initialize the form
@@ -37,8 +37,8 @@ class PersonSearchForm:
         self.view_details_button.grid(row=3, column=2)  # Placing on the next column
         
         # Create the Add Relationship button
-        self.view_details_button = tk.Button(master, text="Add Relationship", command=self.add_relationship)
-        self.view_details_button.grid(row=3, column=3)  # Placing on the next column
+        self.add_relationship_button = tk.Button(master, text="Add Relationship", command=self.person_relationships)
+        self.add_relationship_button.grid(row=3, column=3)  # Placing on the next column
 
 
     # Method to perform the search operation
@@ -90,8 +90,8 @@ class PersonSearchForm:
        else:
            messagebox.showwarning("No Selection", "Please select a person.")
                  
-    # Method to add relationship to the selected person
-    def add_relationship(self):
+    # Method to show the Add Relationship form
+    def person_relationships(self):
         selected_index = self.listbox.curselection()
         if selected_index:
             selected_person = self.results[selected_index[0]]
@@ -99,5 +99,11 @@ class PersonSearchForm:
             surname = selected_person.get('surname')
             birthdate = selected_person.get('birthdate')
             
-            with self.driver.session() as session:
-                relationship_details = session.read_transaction(add_relationship, name, surname, birthdate)
+            # Create a new window for the Add Relationship form
+            add_relationship_window = tk.Toplevel(self.master)
+            add_relationship_window.title("Add Relationship Form")
+            
+            # Pass the selected person's information to the Add Relationship form
+            add_relationship_form = AddRelationshipForm(add_relationship_window, self.driver, selected_person_info=selected_person)
+        else:
+            messagebox.showwarning("No Selection", "Please select a person.")

@@ -1,6 +1,4 @@
 import tkinter as tk
-from tkinter import messagebox
-from database_operations import search_person_by_name_or_surname
 
 class ViewDetailsForm:
     # Constructor method to initialize the form

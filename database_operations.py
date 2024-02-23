@@ -23,7 +23,7 @@ def search_person_by_name_or_surname(tx, name, surname):
     if search_query.endswith(" AND "):
         search_query = search_query[:-5]
 
-    # Constructing the full Cypher query
+    # Constructing the full search query
     search_query = (
         "MATCH (p:Person) "
         f"WHERE {search_query} "
@@ -39,7 +39,7 @@ def search_person_by_name_or_surname(tx, name, surname):
 
 
 def view_person_details(tx, name, surname, birthdate):
-    # Cypher query to retrieve details of a person with exact match on name, surname, and birthdate
+    # query to retrieve details of a person with exact match on name, surname, and birthdate
     view_person_query = (
         "MATCH (p:Person) "
         "WHERE p.name = $name AND p.surname = $surname AND p.birthdate = $birthdate "
@@ -51,13 +51,13 @@ def view_person_details(tx, name, surname, birthdate):
     return result.single()
 
 def add_relationship(tx, name, surname, birthdate):
-    # Cypher query to retrieve details of a person with exact match on name, surname, and birthdate
-    # view_person_query = (
-    #     "MATCH (p:Person) "
-    #     "WHERE p.name = $name AND p.surname = $surname AND p.birthdate = $birthdate "
-    #     "RETURN p.name AS name, p.surname AS surname, p.birthdate AS birthdate"
-    # )
+    #Cypher query to retrieve details of a person with exact match on name, surname, and birthdate
+    view_person_query = (
+        "MATCH (p:Person) "
+        "WHERE p.name = $name AND p.surname = $surname AND p.birthdate = $birthdate "
+        "RETURN p.name AS name, p.surname AS surname, p.birthdate AS birthdate"
+    )
 
-    # # Run the query and return the result
+    # Run the query and return the result
     result = tx.run(view_person_query, name=name, surname=surname, birthdate=birthdate)
     return result.single()
