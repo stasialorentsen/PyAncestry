@@ -50,22 +50,12 @@ def view_person_details(tx, name, surname, birthdate):
     result = tx.run(view_person_query, name=name, surname=surname, birthdate=birthdate)
     return result.single()
 
-# def add_relationship(tx, person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate):
-#     # Cypher query to create a relationship between two people based on their details
-#     add_relationship_query = (
-#         "MERGE (p1:Person {name: '%s', surname: '%s', birthdate: '%s'}) "
-#         "MERGE (p2:Person {name: '%s', surname: '%s', birthdate: '%s'}) "
-#         "CREATE (p1)-[:RELATED_TO]->(p2)" % (person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate)
-#     )
 
-#     print("Add Relationship Query:", add_relationship_query)
-#     tx.run(add_relationship_query)
-
-def add_relationship(tx, person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate):
+def add_relationship(tx, person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate, relationship_type):
     add_relationship_query = (
         "MERGE (p1:Person {name: '%s', surname: '%s', birthdate: '%s'}) "
         "MERGE (p2:Person {name: '%s', surname: '%s', birthdate: '%s'}) "
-        "CREATE (p1)-[:RELATED_TO]->(p2)" % (person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate)
+        "CREATE (p1)-[:%s]->(p2)" % (person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate, relationship_type)
     )
     
     # Execute the query
@@ -73,4 +63,5 @@ def add_relationship(tx, person1_name, person1_surname, person1_birthdate, perso
     
     # Return any result if needed
     return result
+
 

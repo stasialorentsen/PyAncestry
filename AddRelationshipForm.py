@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 from database_operations import add_relationship
 
 class AddRelationshipForm:
@@ -67,9 +68,18 @@ class AddRelationshipForm:
         self.entry_new_birthdate = tk.Entry(self.frame_new_person)
         self.entry_new_birthdate.grid(row=2, column=1)
         
+        # Create dropdown for relationship type
+        self.label_relationship_type = tk.Label(master, text="Relationship Type:")
+        self.label_relationship_type.grid(row=3, column=0)
+        self.relationship_type_var = tk.StringVar(master)
+        self.relationship_type_var.set("Spouse")  # Default relationship type
+        self.relationship_type_dropdown = ttk.Combobox(master, textvariable=self.relationship_type_var, values=["Spouse", "Parent", "Child"])
+        self.relationship_type_dropdown.grid(row=3, column=1)
+
         # Create the Save Relationship button
         self.save_relationship_button = tk.Button(master, text="Save Relationship", command=self.save_relationship)
         self.save_relationship_button.grid(row=3, column=2)  # Placing on the next column
+
 
     def save_relationship(self):
         person1_name = self.name
@@ -78,22 +88,26 @@ class AddRelationshipForm:
         person2_name = self.entry_new_name.get()
         person2_surname = self.entry_new_surname.get()
         person2_birthdate = self.entry_new_birthdate.get()
-    
+        
         # Check if person2_name is empty
         if not person2_name:
             messagebox.showerror("Error", "Please fill in at least the name for the second person.")
             return  # Exit the method without attempting to save the relationship
-    
+        
+        # Retrieve the selected relationship type
+        relationship_type = self.relationship_type_var.get()
+        
         # Call the add_relationship function from database_operations module with the provided details
         with self.driver.session() as session:
-            result = session.write_transaction(add_relationship, person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate)
-    
+            result = session.write_transaction(add_relationship, person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate, relationship_type)
+        
         # Print the result
         # print("Transaction Result:", result)
-    
+        
         if result is not None:
             messagebox.showinfo("Success", "Relationship added successfully.")
         else:
             messagebox.showerror("Error", "Failed to add relationship.")
+
 
                
