@@ -52,6 +52,10 @@ def view_person_details(tx, name, surname, birthdate):
 
 
 def add_relationship(tx, person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate, relationship_type):
+    # Escape special characters in person surnames
+    person1_surname = person1_surname.replace("'", "\\'")
+    person2_surname = person2_surname.replace("'", "\\'")
+    
     add_relationship_query = (
         "MERGE (p1:Person {name: '%s', surname: '%s', birthdate: '%s'}) "
         "MERGE (p2:Person {name: '%s', surname: '%s', birthdate: '%s'}) "
@@ -63,5 +67,6 @@ def add_relationship(tx, person1_name, person1_surname, person1_birthdate, perso
     
     # Return any result if needed
     return result
+
 
 
