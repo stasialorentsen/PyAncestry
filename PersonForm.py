@@ -38,9 +38,9 @@ class PersonForm:
         name = self.entry_name.get()
         surname = self.entry_surname.get()
         birthdate = self.entry_birthdate.get()
-
-        # Checking if all fields are filled
-        if name and surname and birthdate:
+    
+        # Checking if at least one of the name fields is filled
+        if name or surname:
             # Creating a dictionary with person details
             person_details = {"name": name, "surname": surname, "birthdate": birthdate}
             # Calling the add_person method to add the person to the database
@@ -50,15 +50,16 @@ class PersonForm:
             # Clearing the form fields
             self.clear_form()
         else:
-            # Displaying an error message if any field is empty
-            messagebox.showerror("Error", "Please fill in all fields.")
-
+            # Displaying an error message if both name fields are empty
+            messagebox.showerror("Error", "Please fill in at least one of the name fields.")
+    
     # Method to add a person to the database
     def add_person(self, person_details):
         # Using the provided Neo4j driver to interact with the database
         with self.driver.session() as session:
             # Calling the create_person function from database_operations module
             create_person(session, person_details)
+
 
     # Method to clear the form fields
     def clear_form(self):
