@@ -8,6 +8,7 @@ import tkinter as tk
 
 from PersonForm import PersonForm
 from PersonSearchForm import PersonSearchForm
+from VisualizeTreeForm import VisualizeTreeForm
 
 load_dotenv('.env')
 
@@ -27,6 +28,9 @@ class MainForm:
 
         self.search_button = tk.Button(master, text="Search Person", command=self.open_search_person)
         self.search_button.pack(pady=10)
+        
+        self.visualize_button = tk.Button(master, text="Visualize tree", command=self.open_visualize_tree)
+        self.visualize_button.pack(pady=10)
 
     def open_create_person(self):
         # Open the Create Person form
@@ -39,6 +43,11 @@ class MainForm:
     def open_search_person(self):
         root = tk.Tk()
         app = PersonSearchForm(root, driver) 
+        root.mainloop()
+        
+    def open_visualize_tree(self):
+        root = tk.Tk()
+        app = VisualizeTreeForm(root, driver) 
         root.mainloop()
         
 def main():

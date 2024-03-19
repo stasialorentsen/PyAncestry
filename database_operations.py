@@ -50,16 +50,29 @@ def view_person_details(tx, name, surname, birthdate):
     result = tx.run(view_person_query, name=name, surname=surname, birthdate=birthdate)
     return result.single()
 
-
 def add_relationship(tx, person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate, relationship_type):
     # Escape special characters in person surnames
     person1_surname = person1_surname.replace("'", "\\'")
     person2_surname = person2_surname.replace("'", "\\'")
     
+    # Determine relationship types based on the direction
+    if relationship_type == "A child of":
+        parent_relationship = "Parent_of"
+        child_relationship = "Child_of"
+    elif relationship_type == "A parent of":
+        parent_relationship = "Child_of"
+        child_relationship = "Parent_of"
+    else:
+        parent_relationship = "Married_to"
+        child_relationship = "Married_to"
+    
     add_relationship_query = (
         "MERGE (p1:Person {name: '%s', surname: '%s', birthdate: '%s'}) "
         "MERGE (p2:Person {name: '%s', surname: '%s', birthdate: '%s'}) "
-        "CREATE (p1)-[:%s]->(p2)" % (person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate, relationship_type)
+        "CREATE (p1)-[:%s]->(p2), (p2)-[:%s]->(p1)" % 
+        (person1_name, person1_surname, person1_birthdate, 
+         person2_name, person2_surname, person2_birthdate, 
+         child_relationship, parent_relationship)
     )
     
     # Execute the query
@@ -67,6 +80,8 @@ def add_relationship(tx, person1_name, person1_surname, person1_birthdate, perso
     
     # Return any result if needed
     return result
+
+
 
 
 

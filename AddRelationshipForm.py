@@ -72,8 +72,8 @@ class AddRelationshipForm:
         self.label_relationship_type = tk.Label(master, text="Relationship Type:")
         self.label_relationship_type.grid(row=3, column=0)
         self.relationship_type_var = tk.StringVar(master)
-        self.relationship_type_var.set("Spouse")  # Default relationship type
-        self.relationship_type_dropdown = ttk.Combobox(master, textvariable=self.relationship_type_var, values=["Spouse", "Parent", "Child"])
+        self.relationship_type_var.set("Married to")  # Default relationship type
+        self.relationship_type_dropdown = ttk.Combobox(master, textvariable=self.relationship_type_var, values=["Married to", "A parent of", "A child of"])
         self.relationship_type_dropdown.grid(row=3, column=1)
 
         # Create the Save Relationship button
