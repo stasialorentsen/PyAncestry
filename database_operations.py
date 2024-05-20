@@ -39,7 +39,7 @@ def search_person_by_name_or_surname(tx, name, surname):
 
 
 def view_person_details(tx, name, surname, birthdate):
-    # query to retrieve details of a person with exact match on name, surname, and birthdate
+    # Query to retrieve details of a person with exact match on name, surname, and birthdate
     view_person_query = (
         "MATCH (p:Person) "
         "WHERE p.name = $name AND p.surname = $surname AND p.birthdate = $birthdate "

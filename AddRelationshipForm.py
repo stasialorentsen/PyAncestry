@@ -11,6 +11,7 @@ class AddRelationshipForm:
         self.name = name
         self.surname = surname
         self.birthdate = birthdate
+        self.search_function = search_function  # Function reference for searching persons
         
         # Create frames for organizing widgets
         self.frame_selected_person = tk.Frame(master)
@@ -50,9 +51,16 @@ class AddRelationshipForm:
         self.entry_selected_birthdate.delete(0, tk.END)
         self.entry_selected_birthdate.insert(tk.END, self.birthdate)
         self.entry_selected_birthdate.configure(state='readonly')
+     
+        # Creating a 'Search Person' button
+        self.search_button = tk.Button(master, text="Search Person", command=self.open_search_person)
+        self.search_button.pack(pady=10)
 
-        
-        # Create labels and entry fields for new person's information
+        # Creating a label with a message to enter details of new person
+        self.label_person2 = tk.Label(master, text="Or enter a new person details below:")
+        self.label_person2.grid(row=5, column=0, sticky="w", columnspan=2)  # Adjust the row as necessary
+
+       # Create labels and entry fields for new person's information
         self.label_new_name = tk.Label(self.frame_new_person, text="Name 2:")
         self.label_new_name.grid(row=0, column=0, sticky="w")
         self.entry_new_name = tk.Entry(self.frame_new_person)
@@ -79,7 +87,7 @@ class AddRelationshipForm:
         # Create the Save Relationship button
         self.save_relationship_button = tk.Button(master, text="Save Relationship", command=self.save_relationship)
         self.save_relationship_button.grid(row=3, column=2)  # Placing on the next column
-
+        
 
     def save_relationship(self):
         person1_name = self.name
@@ -108,6 +116,4 @@ class AddRelationshipForm:
             messagebox.showinfo("Success", "Relationship added successfully.")
         else:
             messagebox.showerror("Error", "Failed to add relationship.")
-
-
-               
+            
