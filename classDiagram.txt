@@ -18,17 +18,11 @@ class PersonSearchForm {
     + __init__(master, driver)
     - person_search()
     - display_search_results(result)
-    - view_details()
-    - person_relationships()
-}
-
-class AddRelationshipForm {
-    + __init__(master, driver, name, surname, birthdate)
-    - save_relationship()
-}
-
-class ViewDetailsForm {
-    + __init__(master, driver, name, surname, birthdate)
+    - on_listbox1_select(event)
+    - on_listbox2_select(event)
+    - display_person_details(listbox, results, text_widget)
+    - update_text_widget(text_widget, details)
+    - add_relationship()
 }
 
 class VisualizeTreeForm {
@@ -49,11 +43,7 @@ class database_operations {
 MainForm -- PersonForm : uses
 MainForm -- PersonSearchForm : uses
 MainForm -- VisualizeTreeForm : uses
-PersonSearchForm -- ViewDetailsForm : uses
-PersonSearchForm -- AddRelationshipForm : uses
 PersonForm -- database_operations : uses
 PersonSearchForm -- database_operations : uses
-AddRelationshipForm -- database_operations : uses
-ViewDetailsForm -- database_operations : uses
 
 @enduml

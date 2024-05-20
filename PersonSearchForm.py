@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from database_operations import search_person_by_name_or_surname, view_person_details
-from AddRelationshipForm import AddRelationshipForm
+from database_operations import search_person_by_name_or_surname, view_person_details, add_relationship  
 
 class PersonSearchForm:
     def __init__(self, master, driver):
@@ -91,6 +90,62 @@ class PersonSearchForm:
             display_text = f"{name} {surname} {birthdate}"
             listbox.insert(tk.END, display_text)
 
+    def on_listbox1_select(self, event):
+        self.display_person_details(self.listbox1, self.results1, self.view_details_text1)
+
+    def on_listbox2_select(self, event):
+        self.display_person_details(self.listbox2, self.results2, self.view_details_text2)
+
+    # def display_person_details(self, listbox, results, text_widget):
+    #     selected_index = listbox.curselection()
+    #     if selected_index and results:  # Check if index is not empty and results list is not empty
+    #         selected_person = results[selected_index[0]]
+    #         name = selected_person.get('name')
+    #         surname = selected_person.get('surname')
+    #         birthdate = selected_person.get('birthdate')
+
+    #         with self.driver.session() as session:
+    #             person_details = session.read_transaction(view_person_details, name, surname, birthdate)
+
+    #         self.view_person_details(person_details, text_widget)
+    #     else:
+    #         text_widget.delete(1.0, tk.END)
+    #         text_widget.insert(tk.END, "No person selected.")
+
+    # def view_person_details(self, person_details, text_widget):
+    #     text_widget.config(state=tk.NORMAL)
+    #     text_widget.delete(1.0, tk.END)
+    #     if person_details:
+    #         text_widget.insert(tk.END, f"Name: {person_details['name']}\nSurname: {person_details['surname']}\nBirthdate: {person_details['birthdate']}")
+    #     else:
+    #         text_widget.insert(tk.END, "No details found.")
+    #     text_widget.config(state=tk.DISABLED)
+
+    def display_person_details(self, listbox, results, text_widget):
+        selected_index = listbox.curselection()
+        if selected_index and results:  
+            selected_person = results[selected_index[0]]
+            name = selected_person.get('name')
+            surname = selected_person.get('surname')
+            birthdate = selected_person.get('birthdate')
+    
+            with self.driver.session() as session:
+                person_details = session.read_transaction(view_person_details, name, surname, birthdate)
+    
+            self.update_text_widget(text_widget, person_details)
+        else:
+            self.update_text_widget(text_widget, "No person selected.")
+    
+    def update_text_widget(self, text_widget, details):
+        text_widget.config(state=tk.NORMAL)
+        text_widget.delete(1.0, tk.END)
+        if details:
+            text_widget.insert(tk.END, f"Name: {details['name']}\nSurname: {details['surname']}\nBirthdate: {details['birthdate']}")
+        else:
+            text_widget.insert(tk.END, "No details found.")
+        text_widget.config(state=tk.DISABLED)
+
+
     def add_relationship(self):
         selected_index1 = self.listbox1.curselection()
         selected_index2 = self.listbox2.curselection()
@@ -103,41 +158,16 @@ class PersonSearchForm:
             name2 = selected_person2.get('name')
             surname2 = selected_person2.get('surname')
             birthdate2 = selected_person2.get('birthdate')
-
-            add_relationship_window = tk.Toplevel(self.master)
-            add_relationship_window.title("Add Relationship")
-
-            add_relationship_form = AddRelationshipForm(add_relationship_window, self.driver, name1, surname1, birthdate1, name2, surname2, birthdate2)
+            relationship_type = self.relationship_type_var.get()
+    
+            with self.driver.session() as session:
+                session.write_transaction(
+                    add_relationship, 
+                    name1, surname1, birthdate1, 
+                    name2, surname2, birthdate2, 
+                    relationship_type
+                )
+    
+            messagebox.showinfo("Success", "Relationship added successfully.")
         else:
             messagebox.showwarning("No Selection", "Please select persons 1 and 2.")
-
-    def on_listbox1_select(self, event):
-        self.display_person_details(self.listbox1, self.results1, self.view_details_text1)
-
-    def on_listbox2_select(self, event):
-        self.display_person_details(self.listbox2, self.results2, self.view_details_text2)
-
-    def display_person_details(self, listbox, results, text_widget):
-        selected_index = listbox.curselection()
-        if selected_index and results:  # Check if index is not empty and results list is not empty
-            selected_person = results[selected_index[0]]
-            name = selected_person.get('name')
-            surname = selected_person.get('surname')
-            birthdate = selected_person.get('birthdate')
-
-            with self.driver.session() as session:
-                person_details = session.read_transaction(view_person_details, name, surname, birthdate)
-
-            self.view_person_details(person_details, text_widget)
-        else:
-            text_widget.delete(1.0, tk.END)
-            text_widget.insert(tk.END, "No person selected.")
-
-    def view_person_details(self, person_details, text_widget):
-        text_widget.config(state=tk.NORMAL)
-        text_widget.delete(1.0, tk.END)
-        if person_details:
-            text_widget.insert(tk.END, f"Name: {person_details['name']}\nSurname: {person_details['surname']}\nBirthdate: {person_details['birthdate']}")
-        else:
-            text_widget.insert(tk.END, "No details found.")
-        text_widget.config(state=tk.DISABLED)
