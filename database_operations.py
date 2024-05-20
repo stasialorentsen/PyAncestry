@@ -37,19 +37,47 @@ def search_person_by_name_or_surname(tx, name, surname):
     # Returning a list of dictionaries containing the search results
     return [{"name": record['name'], "surname": record['surname'], "birthdate": record['birthdate']} for record in result]
 
-
-def view_person_details(tx, name, surname, birthdate):
+def view_person_details(tx, name, surname, birthdate, person_id):
     # Query to retrieve details of a person with exact match on name, surname, and birthdate
     view_person_query = (
         "MATCH (p:Person) "
         "WHERE p.name = $name AND p.surname = $surname AND p.birthdate = $birthdate "
-        "RETURN p.name AS name, p.surname AS surname, p.birthdate AS birthdate"
+        "RETURN ID(p) AS person_id, p.name AS name, p.surname AS surname, p.birthdate AS birthdate"
     )
+
+    # Print the query with populated parameters
+    print("Name:", name)
+    print("Surname:", surname)
+    print("Birthdate:", birthdate)
 
     # Run the query and return the result
     result = tx.run(view_person_query, name=name, surname=surname, birthdate=birthdate)
-    return result.single()
+    record = result.single()
 
+    # Print the person's ID
+    if record:
+        person_id = record.get('person_id')
+        print("Person ID:", person_id)
+
+    return record
+
+
+def update_person(tx, person_id, name, surname, birthdate):
+    # Check if person_id is not null or empty
+    if person_id:
+        update_query = (
+            "MATCH (p:Person {id: $person_id}) "
+            "SET p.name = $name, p.surname = $surname, p.birthdate = $birthdate"
+        )
+        # Debugging the actual query with the parameters
+        debug_query = f"MATCH (p:Person {{id: '{person_id}'}}) SET p.name = '{name}', p.surname = '{surname}', p.birthdate = '{birthdate}'"
+        print(f"Update Query: {debug_query}")
+        
+        tx.run(update_query, person_id=person_id, name=name, surname=surname, birthdate=birthdate)
+    else:
+        print("Error: The person_id is null or empty.")
+
+        
 def add_relationship(tx, person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate, relationship_type):
     # Escape special characters in person surnames
     person1_surname = person1_surname.replace("'", "\\'")
@@ -74,14 +102,12 @@ def add_relationship(tx, person1_name, person1_surname, person1_birthdate, perso
          person2_name, person2_surname, person2_birthdate, 
          child_relationship, parent_relationship)
     )
-    
+  
     # Execute the query
     result = tx.run(add_relationship_query)
     
     # Return any result if needed
     return result
-
-
 
 
 

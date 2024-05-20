@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 from database_operations import search_person_by_name_or_surname, view_person_details, add_relationship  
+from EditPersonForm import EditPersonForm
+
 
 class PersonSearchForm:
     def __init__(self, master, driver):
@@ -55,15 +57,21 @@ class PersonSearchForm:
 
         # Relationship details
         self.label_relationship_type = tk.Label(master, text="Relationship Type:")
-        self.label_relationship_type.grid(row=5, column=0, columnspan=2)
+        self.label_relationship_type.grid(row=6, column=0, columnspan=2)
 
         self.relationship_type_var = tk.StringVar(master)
         self.relationship_type_var.set("Married to")  # Default relationship type
         self.relationship_type_dropdown = tk.OptionMenu(master, self.relationship_type_var, "Married to", "A parent of", "A child of")
-        self.relationship_type_dropdown.grid(row=5, column=2, columnspan=2)
+        self.relationship_type_dropdown.grid(row=6, column=2, columnspan=2)
 
         self.add_relationship_button = tk.Button(master, text="Add Relationship", command=self.add_relationship)
-        self.add_relationship_button.grid(row=6, column=0, columnspan=4)
+        self.add_relationship_button.grid(row=7, column=0, columnspan=4)
+        
+        self.edit_button1 = tk.Button(master, text="Edit Person 1", command=lambda: self.edit_person(1))
+        self.edit_button1.grid(row=5, column=0, columnspan=2)
+        
+        self.edit_button2 = tk.Button(master, text="Edit Person 2", command=lambda: self.edit_person(2))
+        self.edit_button2.grid(row=5, column=2, columnspan=2)
 
     def person1_search(self):
         name = self.entry_name1.get()
@@ -95,32 +103,7 @@ class PersonSearchForm:
 
     def on_listbox2_select(self, event):
         self.display_person_details(self.listbox2, self.results2, self.view_details_text2)
-
-    # def display_person_details(self, listbox, results, text_widget):
-    #     selected_index = listbox.curselection()
-    #     if selected_index and results:  # Check if index is not empty and results list is not empty
-    #         selected_person = results[selected_index[0]]
-    #         name = selected_person.get('name')
-    #         surname = selected_person.get('surname')
-    #         birthdate = selected_person.get('birthdate')
-
-    #         with self.driver.session() as session:
-    #             person_details = session.read_transaction(view_person_details, name, surname, birthdate)
-
-    #         self.view_person_details(person_details, text_widget)
-    #     else:
-    #         text_widget.delete(1.0, tk.END)
-    #         text_widget.insert(tk.END, "No person selected.")
-
-    # def view_person_details(self, person_details, text_widget):
-    #     text_widget.config(state=tk.NORMAL)
-    #     text_widget.delete(1.0, tk.END)
-    #     if person_details:
-    #         text_widget.insert(tk.END, f"Name: {person_details['name']}\nSurname: {person_details['surname']}\nBirthdate: {person_details['birthdate']}")
-    #     else:
-    #         text_widget.insert(tk.END, "No details found.")
-    #     text_widget.config(state=tk.DISABLED)
-
+    
     def display_person_details(self, listbox, results, text_widget):
         selected_index = listbox.curselection()
         if selected_index and results:  
@@ -128,13 +111,13 @@ class PersonSearchForm:
             name = selected_person.get('name')
             surname = selected_person.get('surname')
             birthdate = selected_person.get('birthdate')
-    
+            person_id = selected_person.get('person_id')  # Get the id of the selected person
             with self.driver.session() as session:
-                person_details = session.read_transaction(view_person_details, name, surname, birthdate)
-    
-            self.update_text_widget(text_widget, person_details)
+                person_details = session.read_transaction(view_person_details, name, surname, birthdate, person_id)  
+                self.update_text_widget(text_widget, person_details)
         else:
             self.update_text_widget(text_widget, "No person selected.")
+
     
     def update_text_widget(self, text_widget, details):
         text_widget.config(state=tk.NORMAL)
@@ -145,6 +128,59 @@ class PersonSearchForm:
             text_widget.insert(tk.END, "No details found.")
         text_widget.config(state=tk.DISABLED)
 
+    def edit_person(self, person_number):
+        if person_number == 1:
+            selected_index = self.listbox1.curselection()
+            if selected_index:
+                selected_person = self.results1[selected_index[0]]
+                person_id = selected_person.get('person_id') 
+                name = selected_person.get('name')
+                surname = selected_person.get('surname')
+                birthdate = selected_person.get('birthdate')
+                
+                # Open a new window for editing the person
+                edit_window = tk.Toplevel(self.master)
+                edit_window.title("Edit Person 1")
+                
+                # Instantiate the EditPersonForm for editing person details
+                edit_form = EditPersonForm(edit_window, self.driver, person_id, name, surname, birthdate)
+        
+            else:
+                messagebox.showwarning("No Selection", "Please select a person 1 to edit.")
+    
+        elif person_number == 2:
+            selected_index = self.listbox2.curselection()
+            if selected_index:
+                selected_person = self.results2[selected_index[0]]
+                person_id = selected_person.get('person_id')  
+                name = selected_person.get('name')
+                surname = selected_person.get('surname')
+                birthdate = selected_person.get('birthdate')
+                
+                # Open a new window for editing the person
+                edit_window = tk.Toplevel(self.master)
+                edit_window.title("Edit Person 2")
+                
+                # Instantiate the EditPersonForm for editing person details
+                edit_form = EditPersonForm(edit_window, self.driver, person_id, name, surname, birthdate)
+        
+            else:
+                messagebox.showwarning("No Selection", "Please select a person 2 to edit.")
+    
+    # Call edit_person with argument 1 for the first button
+    def edit_person1(self):
+        self.edit_person(1)
+    
+    # Call edit_person with argument 2 for the second button
+    def edit_person2(self):
+        self.edit_person(2)
+    
+
+
+    # def update_person_details(self, person_id, name, surname, birthdate):
+    #     with self.driver.session() as session:
+    #         session.write_transaction(update_person, person_id, name, surname, birthdate)
+    
 
     def add_relationship(self):
         selected_index1 = self.listbox1.curselection()
