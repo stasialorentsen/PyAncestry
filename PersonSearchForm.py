@@ -102,7 +102,7 @@ class PersonSearchForm:
             
             # Create a new window for the Add Relationship form
             add_relationship_window = tk.Toplevel(self.master)
-            add_relationship_window.title("Add Relationship Form")
+            add_relationship_window.title("Add Relationship")
             
             # Pass the selected person's information to the Add Relationship form
             add_relationship_form = AddRelationshipForm(add_relationship_window, self.driver, name, surname, birthdate)

@@ -21,7 +21,7 @@ driver = GraphDatabase.driver(uri, auth=(username, password))
 class MainForm:
     def __init__(self, master):
         self.master = master
-        master.title("Person Management System")
+        master.title("PyAncestry")
 
         self.create_button = tk.Button(master, text="Create Person", command=self.open_create_person)
         self.create_button.pack(pady=10)
