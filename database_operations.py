@@ -24,10 +24,15 @@ def search_person_by_name_or_surname(tx, name, surname):
         search_query = search_query[:-5]
 
     # Constructing the full search query
+    # search_query = (
+    #     "MATCH (p:Person) "
+    #     f"WHERE {search_query} "
+    #     "RETURN p.name AS name, p.surname AS surname, p.birthdate AS birthdate"
+    # )
     search_query = (
         "MATCH (p:Person) "
         f"WHERE {search_query} "
-        "RETURN p.name AS name, p.surname AS surname, p.birthdate AS birthdate"
+        "RETURN ID(p) AS person_id, p.name AS name, p.surname AS surname, p.birthdate AS birthdate"
     )
     print("Search Person Query:", search_query)
     print("Search Person Parameters:", parameters)
@@ -35,7 +40,7 @@ def search_person_by_name_or_surname(tx, name, surname):
     result = tx.run(search_query, **parameters)
 
     # Returning a list of dictionaries containing the search results
-    return [{"name": record['name'], "surname": record['surname'], "birthdate": record['birthdate']} for record in result]
+    return [{"name": record['name'], "surname": record['surname'], "birthdate": record['birthdate'], "person_id": record['person_id']} for record in result]
 
 def view_person_details(tx, name, surname, birthdate, person_id):
     # Query to retrieve details of a person with exact match on name, surname, and birthdate
@@ -72,7 +77,12 @@ def update_person(tx, person_id, name, surname, birthdate):
         # Debugging the actual query with the parameters
         debug_query = f"MATCH (p:Person {{id: '{person_id}'}}) SET p.name = '{name}', p.surname = '{surname}', p.birthdate = '{birthdate}'"
         print(f"Update Query: {debug_query}")
-        
+        print(f"Person ID: {person_id}, Name: {name}, Surname: {surname}, Birthdate: {birthdate}")
+
+        # Convert person_id to string if it's an integer
+        if isinstance(person_id, int):
+            person_id = str(person_id)
+
         tx.run(update_query, person_id=person_id, name=name, surname=surname, birthdate=birthdate)
     else:
         print("Error: The person_id is null or empty.")

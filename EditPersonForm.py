@@ -3,7 +3,7 @@ from tkinter import messagebox
 from database_operations import update_person
 
 class EditPersonForm:
-    def __init__(self, master, driver, person_id, name, surname, birthdate=None):
+    def __init__(self, master, driver, person_id, name, surname, birthdate):
         self.master = master
         self.driver = driver
         self.person_id = person_id
@@ -31,10 +31,10 @@ class EditPersonForm:
         self.entry_birthdate.insert(tk.END, birthdate if birthdate else "")
         self.entry_birthdate.grid(row=2, column=1)
 
-        self.save_button = tk.Button(master, text="Save", command=self.update_person)
+        self.save_button = tk.Button(master, text="Save", command=self.update_person_details)
         self.save_button.grid(row=3, columnspan=2)
 
-    def update_person(self):
+    def update_person_details(self):
         name = self.entry_name.get()
         surname = self.entry_surname.get()
         birthdate = self.entry_birthdate.get()

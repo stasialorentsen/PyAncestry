@@ -133,6 +133,7 @@ class PersonSearchForm:
             selected_index = self.listbox1.curselection()
             if selected_index:
                 selected_person = self.results1[selected_index[0]]
+                print("Selected Person:", selected_person)
                 person_id = selected_person.get('person_id') 
                 name = selected_person.get('name')
                 surname = selected_person.get('surname')
@@ -143,6 +144,7 @@ class PersonSearchForm:
                 edit_window.title("Edit Person 1")
                 
                 # Instantiate the EditPersonForm for editing person details
+                print("Person ID before creating EditPersonForm:", person_id)
                 edit_form = EditPersonForm(edit_window, self.driver, person_id, name, surname, birthdate)
         
             else:
@@ -174,13 +176,6 @@ class PersonSearchForm:
     # Call edit_person with argument 2 for the second button
     def edit_person2(self):
         self.edit_person(2)
-    
-
-
-    # def update_person_details(self, person_id, name, surname, birthdate):
-    #     with self.driver.session() as session:
-    #         session.write_transaction(update_person, person_id, name, surname, birthdate)
-    
 
     def add_relationship(self):
         selected_index1 = self.listbox1.curselection()
