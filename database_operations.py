@@ -71,18 +71,13 @@ def update_person(tx, person_id, name, surname, birthdate):
     # Check if person_id is not null or empty
     if person_id:
         update_query = (
-            "MATCH (p:Person {id: $person_id}) "
+            "MATCH (p:Person) WHERE ID(p) = $person_id "
             "SET p.name = $name, p.surname = $surname, p.birthdate = $birthdate"
         )
         # Debugging the actual query with the parameters
-        debug_query = f"MATCH (p:Person {{id: '{person_id}'}}) SET p.name = '{name}', p.surname = '{surname}', p.birthdate = '{birthdate}'"
+        debug_query = f"MATCH (p:Person) WHERE ID(p) = {person_id} SET p.name = '{name}', p.surname = '{surname}', p.birthdate = '{birthdate}'"
         print(f"Update Query: {debug_query}")
-        print(f"Person ID: {person_id}, Name: {name}, Surname: {surname}, Birthdate: {birthdate}")
-
-        # Convert person_id to string if it's an integer
-        if isinstance(person_id, int):
-            person_id = str(person_id)
-
+        
         tx.run(update_query, person_id=person_id, name=name, surname=surname, birthdate=birthdate)
     else:
         print("Error: The person_id is null or empty.")
