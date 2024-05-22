@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from database_operations import search_person_by_name_or_surname, view_person_details, add_relationship_in_db
+from database_operations import search_person_by_name_or_surname, view_person_details, add_relationship_in_db, delete_person_by_id, check_relationships_by_id
 from EditPersonForm import EditPersonForm
 
 
@@ -54,24 +54,32 @@ class PersonSearchForm:
 
         self.view_details_text2 = tk.Text(master, height=5, width=30)
         self.view_details_text2.grid(row=4, column=2, columnspan=2)
-
-        # Relationship details
-        self.label_relationship_type = tk.Label(master, text="Relationship Type:")
-        self.label_relationship_type.grid(row=6, column=0, columnspan=2)
-
-        self.relationship_type_var = tk.StringVar(master)
-        self.relationship_type_var.set("Married to")  # Default relationship type
-        self.relationship_type_dropdown = tk.OptionMenu(master, self.relationship_type_var, "Married to", "A parent of", "A child of")
-        self.relationship_type_dropdown.grid(row=6, column=2, columnspan=2)
-
-        self.add_relationship_button = tk.Button(master, text="Add Relationship", command=self.add_relationship)
-        self.add_relationship_button.grid(row=7, column=0, columnspan=4)
         
         self.edit_button1 = tk.Button(master, text="Edit Person 1", command=lambda: self.edit_person(1))
         self.edit_button1.grid(row=5, column=0, columnspan=2)
         
         self.edit_button2 = tk.Button(master, text="Edit Person 2", command=lambda: self.edit_person(2))
         self.edit_button2.grid(row=5, column=2, columnspan=2)
+        
+        self.delete_button1 = tk.Button(master, text="Delete Person 1", command=lambda: self.delete_person(1))
+        self.delete_button1.grid(row=6, column=0, columnspan=2)
+        
+        self.delete_button2 = tk.Button(master, text="Delete Person 2", command=lambda: self.delete_person(2))
+        self.delete_button2.grid(row=6, column=2, columnspan=2)
+
+        # Relationship details
+        self.label_relationship_type = tk.Label(master, text="Relationship Type:")
+        self.label_relationship_type.grid(row=9, column=0, columnspan=2)
+
+        self.relationship_type_var = tk.StringVar(master)
+        self.relationship_type_var.set("Married to")  # Default relationship type
+        self.relationship_type_dropdown = tk.OptionMenu(master, self.relationship_type_var, "Married to", "A parent of", "A child of")
+        self.relationship_type_dropdown.grid(row=9, column=1, columnspan=2)
+
+        self.add_relationship_button = tk.Button(master, text="Add Relationship", command=self.add_relationship)
+        self.add_relationship_button.grid(row=9, column=2, columnspan=4)
+        
+
 
     def person1_search(self):
         name = self.entry_name1.get()
@@ -127,6 +135,7 @@ class PersonSearchForm:
         else:
             text_widget.insert(tk.END, "No details found.")
         text_widget.config(state=tk.DISABLED)
+        
 
     def edit_person(self, person_number):
         if person_number == 1:
@@ -206,8 +215,90 @@ class PersonSearchForm:
         else:
             messagebox.showwarning("No Selection", "Please select persons 1 and 2.")
 
-
-
-
-
+    def check_relationships(self, person_id):
+        # Check if person_id is not null or empty
+        if person_id:
+            # Query the database to check if the person has any relationships
+            with self.driver.session() as session:
+                relationship_count = session.read_transaction(check_relationships_by_id, person_id)
+                
+                # Print the relationship count for debugging
+                print("Relationship Count:", relationship_count)
+            
+            # Return True if relationships exist, False otherwise
+            return relationship_count > 0
+        else:
+            # If person_id is null or empty, return False
+            return False
     
+    def delete_person(self, person_number):
+        if person_number == 1:
+            selected_index = self.listbox1.curselection()
+            if selected_index:
+                selected_person = self.results1[selected_index[0]]
+                person_id = selected_person.get('person_id') 
+                name = selected_person.get('name')
+                surname = selected_person.get('surname')
+                birthdate = selected_person.get('birthdate')
+    
+                # Check if the person has relationships
+                has_relationships = self.check_relationships(person_id)
+                
+                # Display a confirmation dialog with appropriate message
+                if has_relationships:
+                    confirmation = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete {name} {surname} and all their relationships?")
+                else:
+                    confirmation = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete {name} {surname}?")
+                
+                if confirmation:
+                    # Call the database operation method to delete the person and their relationships
+                    with self.driver.session() as session:
+                        session.write_transaction(delete_person_by_id, person_id)
+            else:
+                messagebox.showwarning("No Selection", "Please select a person 1 to delete.")
+    
+        elif person_number == 2:
+            selected_index = self.listbox2.curselection()
+            if selected_index:
+                selected_person = self.results2[selected_index[0]]
+                person_id = selected_person.get('person_id')  
+                name = selected_person.get('name')
+                surname = selected_person.get('surname')
+                birthdate = selected_person.get('birthdate')
+    
+                # Check if the person has relationships
+                has_relationships = self.check_relationships(person_id)
+                
+                # Display a confirmation dialog with appropriate message
+                if has_relationships:
+                    confirmation = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete {name} {surname} and all their relationships?")
+                else:
+                    confirmation = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete {name} {surname}?")
+                
+                if confirmation:
+                    # Call the database operation method to delete the person and their relationships
+                    with self.driver.session() as session:
+                        session.write_transaction(delete_person_by_id, person_id)
+            else:
+                messagebox.showwarning("No Selection", "Please select a person 2 to delete.")
+    
+    def delete_person1(self):
+        self.delete_person(1)
+    
+    def delete_person2(self):
+        self.delete_person(2)
+    
+    # Database operations
+    def delete_person_by_id(tx, person_id):
+        # Check if person_id is not null or empty
+        if person_id:
+            delete_query = (
+                "MATCH (p:Person)-[r]-() WHERE ID(p) = $person_id DELETE r, p"
+            )
+            # Debugging the actual query with the parameters
+            debug_query = f"MATCH (p:Person)-[r]-() WHERE ID(p) = {person_id} DELETE r, p"
+            print(f"Delete Query: {debug_query}")
+            
+            tx.run(delete_query, person_id=person_id)
+        else:
+            print("Error: The person_id is null or empty.")

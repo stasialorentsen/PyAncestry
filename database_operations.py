@@ -103,6 +103,38 @@ def add_relationship_in_db(tx, person1_id, person2_id, relationship_type):
     print(f"Add Relationship Query: {add_relationship_query}")
     
     tx.run(add_relationship_query, person1_id=person1_id, person2_id=person2_id)
+    
+def delete_person_by_id(tx, person_id):
+    # Check if person_id is not null or empty
+    if person_id:
+        delete_query = (
+            "MATCH (p:Person) WHERE ID(p) = $person_id DETACH DELETE p"
+        )
+        # Debugging the actual query with the parameters
+        debug_query = f"MATCH (p:Person) WHERE ID(p) = {person_id} DETACH DELETE p"
+        print(f"Delete Query: {debug_query}")
+        
+        tx.run(delete_query, person_id=person_id)
+    else:
+        print("Error: The person_id is null or empty.")
+
+
+def check_relationships_by_id(tx, person_id):
+    query = (
+        "MATCH (p:Person)-[r]->() WHERE ID(p) = $person_id "
+        "RETURN count(r)"
+    )
+    # Debugging the actual query with the parameters
+    debug_query = f"MATCH (p:Person)-[r]->() WHERE ID(p) = {person_id} RETURN count(r)"
+    print(f"Check Relationships Query: {debug_query}")
+    
+    result = tx.run(query, person_id=person_id)
+    return result.single()[0]  # Return the count of relationships
+
+
+
+
+
 
 
 
