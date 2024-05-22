@@ -83,36 +83,27 @@ def update_person(tx, person_id, name, surname, birthdate):
         print("Error: The person_id is null or empty.")
 
         
-def add_relationship(tx, person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate, relationship_type):
-    # Escape special characters in person surnames
-    person1_surname = person1_surname.replace("'", "\\'")
-    person2_surname = person2_surname.replace("'", "\\'")
-    
-    # Determine relationship types based on the direction
+def add_relationship_in_db(tx, person1_id, person2_id, relationship_type):
     if relationship_type == "A child of":
-        parent_relationship = "Parent_of"
-        child_relationship = "Child_of"
+        relationship_out = "Child_of"
+        relationship_in = "Parent_of"
     elif relationship_type == "A parent of":
-        parent_relationship = "Child_of"
-        child_relationship = "Parent_of"
+        relationship_out = "Parent_of"
+        relationship_in = "Child_of"
     else:
-        parent_relationship = "Married_to"
-        child_relationship = "Married_to"
+        relationship_out = "Married_to"
+        relationship_in = "Married_to"
     
     add_relationship_query = (
-        "MERGE (p1:Person {name: '%s', surname: '%s', birthdate: '%s'}) "
-        "MERGE (p2:Person {name: '%s', surname: '%s', birthdate: '%s'}) "
-        "CREATE (p1)-[:%s]->(p2), (p2)-[:%s]->(p1)" % 
-        (person1_name, person1_surname, person1_birthdate, 
-         person2_name, person2_surname, person2_birthdate, 
-         child_relationship, parent_relationship)
+        "MATCH (p1:Person WHERE ID(p1) = $person1_id) "
+        "MATCH (p2:Person WHERE ID(p2) = $person2_id) "
+        "MERGE (p1)-[r1:%s]->(p2)-[r2:%s]->(p1)" % (relationship_out, relationship_in)
     )
-  
-    # Execute the query
-    result = tx.run(add_relationship_query)
     
-    # Return any result if needed
-    return result
+    print(f"Add Relationship Query: {add_relationship_query}")
+    
+    tx.run(add_relationship_query, person1_id=person1_id, person2_id=person2_id)
+
 
 
 

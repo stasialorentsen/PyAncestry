@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from database_operations import search_person_by_name_or_surname, view_person_details, add_relationship  
+from database_operations import search_person_by_name_or_surname, view_person_details, add_relationship_in_db
 from EditPersonForm import EditPersonForm
 
 
@@ -180,25 +180,34 @@ class PersonSearchForm:
     def add_relationship(self):
         selected_index1 = self.listbox1.curselection()
         selected_index2 = self.listbox2.curselection()
+        
         if selected_index1 and selected_index2:
             selected_person1 = self.results1[selected_index1[0]]
             selected_person2 = self.results2[selected_index2[0]]
-            name1 = selected_person1.get('name')
-            surname1 = selected_person1.get('surname')
-            birthdate1 = selected_person1.get('birthdate')
-            name2 = selected_person2.get('name')
-            surname2 = selected_person2.get('surname')
-            birthdate2 = selected_person2.get('birthdate')
+            
+            print("Selected Person 1:", selected_person1)
+            print("Selected Person 2:", selected_person2)
+            
+            person1_id = selected_person1.get('person_id')
+            person2_id = selected_person2.get('person_id')
+            
+            if not person1_id or not person2_id:
+                messagebox.showerror("Error", "One or both selected persons do not have a valid ID.")
+                return
+            
             relationship_type = self.relationship_type_var.get()
-    
+            
+            print(f"Person ID 1: {person1_id}, Person ID 2: {person2_id}, Relationship Type: {relationship_type}")
+            
             with self.driver.session() as session:
-                session.write_transaction(
-                    add_relationship, 
-                    name1, surname1, birthdate1, 
-                    name2, surname2, birthdate2, 
-                    relationship_type
-                )
-    
+                session.write_transaction(add_relationship_in_db, person1_id, person2_id, relationship_type)
+            
             messagebox.showinfo("Success", "Relationship added successfully.")
         else:
             messagebox.showwarning("No Selection", "Please select persons 1 and 2.")
+
+
+
+
+
+    
