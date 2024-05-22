@@ -22,13 +22,7 @@ def search_person_by_name_or_surname(tx, name, surname):
     # Removing the trailing "AND" if it exists
     if search_query.endswith(" AND "):
         search_query = search_query[:-5]
-
-    # Constructing the full search query
-    # search_query = (
-    #     "MATCH (p:Person) "
-    #     f"WHERE {search_query} "
-    #     "RETURN p.name AS name, p.surname AS surname, p.birthdate AS birthdate"
-    # )
+        
     search_query = (
         "MATCH (p:Person) "
         f"WHERE {search_query} "
