@@ -288,17 +288,3 @@ class PersonSearchForm:
     def delete_person2(self):
         self.delete_person(2)
     
-    # # Database operations
-    # def delete_person_by_id(tx, person_id):
-    #     # Check if person_id is not null or empty
-    #     if person_id:
-    #         delete_query = (
-    #             "MATCH (p:Person)-[r]-() WHERE ID(p) = $person_id DELETE r, p"
-    #         )
-    #         # Debugging the actual query with the parameters
-    #         debug_query = f"MATCH (p:Person)-[r]-() WHERE ID(p) = {person_id} DELETE r, p"
-    #         print(f"Delete Query: {debug_query}")
-            
-    #         tx.run(delete_query, person_id=person_id)
-    #     else:
-    #         print("Error: The person_id is null or empty.")

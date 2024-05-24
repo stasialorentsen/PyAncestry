@@ -1,9 +1,0 @@
-@startuml
-(Hortensia von And) -- (Rapmus And)
-(Delia And) --> (Rap And)
-(Hortensia von And) --> (Anders And)
-(Rapmus And) --> (Anders And)
-(Delia And) --> (Rip And)
-(Hortensia von And) --> (Delia And)
-(Rapmus And) --> (Delia And)
-@enduml

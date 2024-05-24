@@ -87,7 +87,3 @@ class VisualizeTreeForm:
             print("PlantUML code:")
             print(plantuml_code)
         print("File written successfully")
-
-
-
-

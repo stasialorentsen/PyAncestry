@@ -1,49 +1,68 @@
 @startuml
-
 class MainForm {
     + __init__(master)
-    - open_create_person()
-    - open_search_person()
-    - open_visualize_tree()
+    + open_create_person()
+    + open_search_person()
+    + open_visualize_tree()
+    + main()
 }
 
 class PersonForm {
     + __init__(master, driver)
-    - create_person()
-    - add_person(person_details)
-    - clear_form()
+    + create_person()
+    + add_person(person_details)
+    + clear_form()
 }
 
 class PersonSearchForm {
     + __init__(master, driver)
-    - person_search()
-    - display_search_results(result)
-    - on_listbox1_select(event)
-    - on_listbox2_select(event)
-    - display_person_details(listbox, results, text_widget)
-    - update_text_widget(text_widget, details)
-    - add_relationship()
+    + person1_search()
+    + person2_search()
+    + display_search_results(results, listbox)
+    + on_listbox1_select(event)
+    + on_listbox2_select(event)
+    + display_person_details(listbox, results, text_widget)
+    + update_text_widget(text_widget, details)
+    + edit_person(person_number)
+    + edit_person1()
+    + edit_person2()
+    + add_relationship()
+    + check_relationships(person_id)
+    + delete_person(person_number)
+    + delete_person1()
+    + delete_person2()
+    
 }
 
 class VisualizeTreeForm {
     + __init__(master, driver)
-    - generate_visualization()
-    - _generate_plantuml(result)
-    - _format_name(node)
-    - _write_to_file(plantuml_code)
+    + generate_visualization()
+    + _generate_plantuml(result)
+    + _format_name(node)
+    + _write_to_file(plantuml_code)
+}
+
+class EditPersonForm {
+    + __init__(master, driver, person_id, name, surname, birthdate)
+    + update_person_details()
 }
 
 class database_operations {
     + create_person(tx, person_details)
     + search_person_by_name_or_surname(tx, name, surname)
-    + view_person_details(tx, name, surname, birthdate)
-    + add_relationship(tx, person1_name, person1_surname, person1_birthdate, person2_name, person2_surname, person2_birthdate, relationship_type)
+    + view_person_details(tx, name, surname, birthdate, person_id)
+    + update_person(tx, person_id, name, surname, birthdate)
+    + add_relationship_in_db(tx, person1_id, person2_id, relationship_type)
+    + delete_person_by_id(tx, person_id)
+    + check_relationships_by_id(tx, person_id)
 }
 
-MainForm -- PersonForm : uses
-MainForm -- PersonSearchForm : uses
-MainForm -- VisualizeTreeForm : uses
-PersonForm -- database_operations : uses
-PersonSearchForm -- database_operations : uses
 
+MainForm -down- PersonForm: uses
+MainForm -down- PersonSearchForm: uses
+MainForm -right- VisualizeTreeForm: uses
+PersonSearchForm -right- EditPersonForm: uses
+PersonForm -down- database_operations : uses
+PersonSearchForm -down- database_operations : uses
+EditPersonForm -down- database_operations : uses
 @enduml
